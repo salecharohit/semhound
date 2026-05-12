@@ -6,6 +6,10 @@
 [![PyPI downloads](https://img.shields.io/pypi/dm/semhound?cacheSeconds=300)](https://pypi.org/project/semhound)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
+<p align="center">
+  <img src="social_card.png" alt="semhound — Hunt secrets & vulnerabilities across GitHub orgs with Semgrep + AI triage" width="100%">
+</p>
+
 **semhound** automates Semgrep scanning at org scale — you bring the rules, it handles discovery, cloning, scanning, and reporting across every repository in one or more GitHub organisations or user accounts. Optionally route each finding through an AI provider to triage true vs. false positives with a customised prompt.
 
 Just like [TruffleHog](https://github.com/trufflesecurity/trufflehog) sweeps repos for secrets, semhound sweeps repos for any code pattern you define.
