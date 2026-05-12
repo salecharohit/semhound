@@ -28,9 +28,11 @@ Just like [TruffleHog](https://github.com/trufflesecurity/trufflehog) sweeps rep
 ## Use-cases
 
 **Bug bounty SQL injection — identify the same pattern across all repos**
+
 A bug bounty report flagged a SQL injection in one of your apps. Write a Semgrep rule for that pattern and sweep your entire org to find every other repo where the same issue exists.
 
 **Zero-day in a third-party OSS library — find every repo still running the vulnerable version**
+
 A zero-day drops for a widely-used library — think log4j. Write a Semgrep rule that matches that version string in dependency files and sweep all your orgs in one pass. You get an immediate list of every repo still running the vulnerable version so you can prioritise upgrades before the exploit is weaponised.
 
 ---
