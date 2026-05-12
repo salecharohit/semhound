@@ -59,7 +59,24 @@ gh auth login
 
 ## Installation
 
+**Recommended — [`pipx`](https://pipx.pypa.io)** (macOS / Linux):
+
+`pipx` installs CLI tools into isolated virtual environments and makes them globally available — no `venv` management, no system Python conflicts.
+
 ```bash
+# Install pipx (once)
+brew install pipx        # macOS
+# or: pip install --user pipx   # Linux
+
+# Install semhound
+pipx install semhound
+```
+
+**Alternative — `pip`** (inside a virtual environment):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install semhound
 ```
 
@@ -204,25 +221,31 @@ Results are written to `<target>_scan.csv`. Pass `--sarif` to also produce `<tar
 
 ## FAQ
 
-**Who is this tool for?**
+### **Who is this tool for?**
+
 semhound is built for **Purple and Blue teams** — security engineers who need to identify vulnerable code patterns at org scale, not one repo at a time. Whether you're responding to a bug bounty report, sweeping for a CVE across an acquired company's codebase, or enforcing a security pattern across 200 repos, semhound gives you the answer in one command.
 
-**What authentication is needed?**
+### **What authentication is needed?**
+
 semhound uses two mechanisms. `gh auth login` creates an OAuth token used for repository discovery via `gh repo list`. Cloning uses SSH with a key registered in your GitHub account — preferred over HTTPS because keys don't expire, are never embedded in URLs, and have no credential helper overhead when cloning hundreds of repos in parallel.
 
-**Does it scan git history?**
+### **Does it scan git history?**
 No. semhound does a shallow clone of the default branch (`--depth 1`) and scans the current state of the code. It is designed for broad, fast coverage across many repos, not deep forensic history analysis.
 
-**How is this different from TruffleHog or Gitleaks?**
+### **How is this different from TruffleHog or Gitleaks?**
+
 TruffleHog and Gitleaks are purpose-built secrets scanners — they detect API keys, tokens, and credentials using their own built-in signatures. semhound is not a secrets scanner. It runs any Semgrep rule you give it — security vulnerabilities, dangerous function calls, vulnerable dependency versions, custom code patterns. Use TruffleHog for secrets; use semhound when you need to hunt for arbitrary code patterns at org scale.
 
-**How is this different from running Semgrep directly?**
+### **How is this different from running Semgrep directly?**
+
 Semgrep is a scanner; it needs a target. Running it directly means you clone each repo yourself, run the command, collect results, repeat. semhound wraps that entire loop — it discovers every repo in an org or user account, clones them in parallel, runs your rules across all of them, and writes a consolidated CSV. One command replaces what would otherwise be a shell script across dozens or hundreds of repos.
 
-**How is this different from GitHub Advanced Security (GHAS)?**
+### **How is this different from GitHub Advanced Security (GHAS)?**
+
 GHAS must be enabled repository by repository and requires a GitHub Enterprise licence for private repos. semhound works with any GitHub account, needs no per-repo setup, and lets you bring your own Semgrep rules. It runs on demand from anywhere, against any org or user you have access to.
 
-**How is this different from git-secrets?**
+### **How is this different from git-secrets?**
+
 git-secrets is a pre-commit hook that stops developers from committing secrets at commit time. semhound is a retrospective org-wide scanner — it sweeps repositories that already exist, across teams and orgs, looking for patterns you define. Different problem, different tool.
 
 ---
