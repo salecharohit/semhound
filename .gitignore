@@ -1,0 +1,22 @@
+# Scan outputs
+*_scan.csv
+*_scan.sarif
+
+# AI config (contains credentials / profile names)
+ai.config
+
+# Semgrep rules — local only, not tracked
+rules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+.pytest_cache/
+.mypy_cache/

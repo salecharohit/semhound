@@ -1,0 +1,80 @@
+# ── Git Threat Hunter · AI Configuration ──────────────────────────────────────
+# Copy this file to ai.config, fill in your credentials, then pass it with:
+#   git-threat-hunter <org> --rules-dir ./rules --ai-config ai.config
+#
+# Set 'provider' to one of: claude | gemini | openai | bedrock
+# Only the block matching your chosen provider needs to be filled in.
+
+provider: claude          # <-- change to your preferred provider
+
+# ── Anthropic Claude ──────────────────────────────────────────────────────────
+api_key: sk-ant-REPLACE_ME
+model: claude-sonnet-4-6
+
+# ── Google Gemini ─────────────────────────────────────────────────────────────
+# provider: gemini
+# api_key: AIza-REPLACE_ME
+# model: gemini-1.5-pro
+
+# ── OpenAI ────────────────────────────────────────────────────────────────────
+# provider: openai
+# api_key: sk-REPLACE_ME
+# model: gpt-4o
+
+# ── AWS Bedrock ───────────────────────────────────────────────────────────────
+# Credentials are read from ~/.aws/credentials — no API keys needed here.
+# Supports named profiles, IAM roles, instance profiles, and AWS SSO.
+# Uses the Bedrock Converse API, so any model Bedrock exposes works here.
+#
+# provider: bedrock
+# aws_profile: default       # omit to use the default credential chain
+# aws_region: us-east-1
+# model: anthropic.claude-3-5-sonnet-20241022-v2:0
+#
+# GLM-flash example (Zhipu AI via Bedrock):
+# provider: bedrock
+# aws_profile: user3
+# aws_region: us-east-1
+# model: <glm-flash-bedrock-model-id>   # replace with the exact ID from the Bedrock console
+
+# ── Optional: override the system prompt sent to the AI ──────────────────────
+#
+# Uncomment exactly one system_prompt block below to tune AI verdicts for your
+# specific scenario. If omitted, a generic AppSec triage prompt is used.
+
+# ── Bug-bounty SQL injection sweep ───────────────────────────────────────────
+# Use-case: a researcher reported a SQL injection via your bug bounty programme.
+# You have written a Semgrep rule that matches the vulnerable pattern and are now
+# sweeping all org repos to find every similar occurrence before public disclosure.
+# This prompt focuses the AI on confirming exploitability and estimating priority.
+#
+# system_prompt: >
+#   You are a senior application security engineer triaging SQL injection findings
+#   from a bug-bounty-driven pattern sweep.
+#   A researcher already confirmed one exploitable instance of this pattern.
+#   For each new match, assess: (1) whether user-controlled input can reach the
+#   query without sanitisation, (2) the likely exploitability (direct query
+#   concatenation vs. parameterised workaround), and (3) the blast radius
+#   (authentication bypass, data exfiltration, write access).
+#   Return confidence reflecting exploitability likelihood, not just pattern presence.
+#   Be concise and precise.
+
+# ── Zero-day in a third-party OSS library ────────────────────────────────────
+# Use-case: a CVE was published for an open-source library your org uses.
+# The vulnerability is triggered by a specific API call pattern.
+# You have written a Semgrep rule matching that call site and are sweeping every
+# repo to prioritise which services need an emergency patch or workaround first.
+# This prompt focuses the AI on confirming the dangerous API is reachable and
+# whether any mitigating controls (input validation, sandboxing) are already present.
+#
+# system_prompt: >
+#   You are a senior application security engineer triaging findings from a
+#   zero-day sweep for a CVE in a third-party open-source library.
+#   The vulnerable API call has been matched by a Semgrep rule.
+#   For each finding, assess: (1) whether the matched call uses the exact
+#   vulnerable code path described in the CVE, (2) whether any caller-side
+#   mitigations (input validation, sandboxing, version guards) are visible in
+#   the snippet, and (3) how directly attacker-controlled data flows into the call.
+#   Prioritise findings where no mitigation is present and attacker data is reachable.
+#   Return confidence reflecting actual exploitability of this specific call site.
+#   Be concise and precise.

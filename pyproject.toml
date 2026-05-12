@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semhound"
+version = "1.0.0"
+description = "Scan every repository across your GitHub organisations using Semgrep rules, with optional AI triage"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Rohit Salecha", email = "i@rohitsalecha.com" }]
+requires-python = ">=3.9"
+keywords = ["security", "semgrep", "github", "appsec", "threat-hunting", "sast"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "tqdm>=4.66",
+    "pyyaml>=6.0",
+    "anthropic>=0.25",
+    "google-generativeai>=0.5",
+    "openai>=1.30",
+    "boto3>=1.34",
+]
+
+[project.urls]
+Homepage   = "https://github.com/salecharohit/semhound"
+Issues     = "https://github.com/salecharohit/semhound/issues"
+
+[project.scripts]
+semhound = "semhound.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
