@@ -224,3 +224,9 @@ GHAS must be enabled repository by repository and requires a GitHub Enterprise l
 
 **How is this different from git-secrets?**
 git-secrets is a pre-commit hook that stops developers from committing secrets at commit time. semhound is a retrospective org-wide scanner — it sweeps repositories that already exist, across teams and orgs, looking for patterns you define. Different problem, different tool.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR — it covers branch naming, commit message format (Conventional Commits), and how the automated release pipeline works.
