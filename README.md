@@ -27,6 +27,8 @@ Just like [TruffleHog](https://github.com/trufflesecurity/trufflehog) sweeps rep
 
 ## Use-cases
 
+semhound is designed for **targeted, on-demand scanning** — you define a precise set of Semgrep rules and run them across many repositories to answer a specific question fast. It is not intended as a continuous, all-rules-all-repos scanner and works best when you treat it as a precision instrument rather than a firehose.
+
 **Bug bounty SQL injection — identify the same pattern across all repos**
 
 A bug bounty report flagged a SQL injection in one of your apps. Write a Semgrep rule for that pattern and sweep your entire org to find every other repo where the same issue exists.
@@ -34,6 +36,9 @@ A bug bounty report flagged a SQL injection in one of your apps. Write a Semgrep
 **Zero-day in a third-party OSS library — find every repo still running the vulnerable version**
 
 A zero-day drops for a widely-used library — think log4j. Write a Semgrep rule that matches that version string in dependency files and sweep all your orgs in one pass. You get an immediate list of every repo still running the vulnerable version so you can prioritise upgrades before the exploit is weaponised.
+
+> **A note on scale and resources** 
+> Cloning hundreds of repositories — even shallowly — involves real bandwidth and disk I/O. semhound uses a combined clone filter (`--filter=combine:blob:none+blob:limit=5m --depth 1`) that skips all unreferenced history blobs and any file larger than 5 MB (images, videos, large binaries) — only source code and small assets are transferred. Even so, scanning an org of 500 repos with a broad Semgrep rule set is still a heavyweight operation. For best results: keep your rule set tight and purposeful, target the orgs or users most relevant to your investigation, and run semhound on demand rather than on a schedule against every repository you own.
 
 ---
 
@@ -249,6 +254,10 @@ GHAS must be enabled repository by repository and requires a GitHub Enterprise l
 ### **How is this different from git-secrets?**
 
 git-secrets is a pre-commit hook that stops developers from committing secrets at commit time. semhound is a retrospective org-wide scanner — it sweeps repositories that already exist, across teams and orgs, looking for patterns you define. Different problem, different tool.
+
+### **Is semhound suitable for continuous or scheduled scanning?**
+
+semhound is optimised for targeted, on-demand sweeps — not for running against your entire repository estate on a cron schedule with a broad rule set. Each scan uses a blobless shallow clone (`--filter=blob:none --depth 1`) to keep transfers lean, but cloning even a modest org of 200 repos still consumes significant bandwidth and generates heavy SSD read/write cycles if run repeatedly or with many rules. The sweet spot is a focused set of rules triggered by a specific event: a new CVE, a bug bounty finding, an acquired codebase review. Use it like a scalpel, not a lawnmower.
 
 ---
 

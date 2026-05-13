@@ -340,6 +340,10 @@ def _scan_repo(
             "--depth", "1",
             "--single-branch",
             "--no-tags",
+            # combine:blob:none skips unreferenced history blobs;
+            # blob:limit=5m skips any file >5 MB in the working tree
+            # (large images, videos, binaries) — source code is always <5 MB
+            "--filter=combine:blob:none+blob:limit=5m",
             ssh_url,
             tempdir,
         ])
