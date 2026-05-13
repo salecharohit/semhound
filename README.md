@@ -38,7 +38,7 @@ A bug bounty report flagged a SQL injection in one of your apps. Write a Semgrep
 A zero-day drops for a widely-used library — think log4j. Write a Semgrep rule that matches that version string in dependency files and sweep all your orgs in one pass. You get an immediate list of every repo still running the vulnerable version so you can prioritise upgrades before the exploit is weaponised.
 
 > **A note on scale and resources** 
-> Cloning hundreds of repositories — even shallowly — involves real bandwidth and disk I/O. semhound uses a combined clone filter (`--filter=combine:blob:none+blob:limit=5m --depth 1`) that skips all unreferenced history blobs and any file larger than 5 MB (images, videos, large binaries) — only source code and small assets are transferred. Even so, scanning an org of 500 repos with a broad Semgrep rule set is still a heavyweight operation. For best results: keep your rule set tight and purposeful, target the orgs or users most relevant to your investigation, and run semhound on demand rather than on a schedule against every repository you own.
+> Cloning hundreds of repositories — even shallowly — involves real bandwidth and disk I/O. semhound uses `--filter=blob:limit=1m --depth 1` which skips any file larger than 1 MB — only source code and small assets are transferred. This threshold matches Semgrep's own default limit (1,000,000 bytes), so no file that would be skipped by the scanner is ever downloaded. Even so, scanning an org of 500 repos with a broad Semgrep rule set is still a heavyweight operation. For best results: keep your rule set tight and purposeful, target the orgs or users most relevant to your investigation, and run semhound on demand rather than on a schedule against every repository you own.
 
 ---
 
@@ -255,9 +255,15 @@ GHAS must be enabled repository by repository and requires a GitHub Enterprise l
 
 git-secrets is a pre-commit hook that stops developers from committing secrets at commit time. semhound is a retrospective org-wide scanner — it sweeps repositories that already exist, across teams and orgs, looking for patterns you define. Different problem, different tool.
 
+### **Why does semhound only clone files up to 1 MB?**
+
+Semgrep silently skips any file larger than 1,000,000 bytes (1 MB) by default. Downloading files above that threshold would consume bandwidth and disk I/O without contributing a single finding. semhound therefore passes `--filter=blob:limit=1m` to `git clone` so the clone limit is aligned with the scanner limit — large binaries, images, videos, and auto-generated assets are never transferred.
+
+If your rules target files that exceed 1 MB (e.g. large generated files or vendored bundles), raise both limits together: pass `--max-target-bytes` to Semgrep and adjust the clone filter in the source accordingly.
+
 ### **Is semhound suitable for continuous or scheduled scanning?**
 
-semhound is optimised for targeted, on-demand sweeps — not for running against your entire repository estate on a cron schedule with a broad rule set. Each scan uses a blobless shallow clone (`--filter=blob:none --depth 1`) to keep transfers lean, but cloning even a modest org of 200 repos still consumes significant bandwidth and generates heavy SSD read/write cycles if run repeatedly or with many rules. The sweet spot is a focused set of rules triggered by a specific event: a new CVE, a bug bounty finding, an acquired codebase review. Use it like a scalpel, not a lawnmower.
+semhound is optimised for targeted, on-demand sweeps — not for running against your entire repository estate on a cron schedule with a broad rule set. Each scan uses a shallow clone with a 1 MB blob limit (`--filter=blob:limit=1m --depth 1`) to keep transfers lean, but cloning even a modest org of 200 repos still consumes significant bandwidth and generates heavy SSD read/write cycles if run repeatedly or with many rules. The sweet spot is a focused set of rules triggered by a specific event: a new CVE, a bug bounty finding, an acquired codebase review. Use it like a scalpel, not a lawnmower.
 
 ---
 
