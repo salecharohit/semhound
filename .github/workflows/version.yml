@@ -17,6 +17,20 @@ jobs:
 
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           release-type: python
+
+      # Auto-merge the Release PR so you only ever approve one PR per release.
+      # Uses --admin to bypass CODEOWNERS review — the Release PR only bumps
+      # the version number and updates the changelog, never changes logic.
+      - name: Auto-merge Release PR
+        if: ${{ steps.release.outputs.pr }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: |
+          gh pr merge "${{ steps.release.outputs.pr }}" \
+            --repo salecharohit/semhound \
+            --squash \
+            --admin
