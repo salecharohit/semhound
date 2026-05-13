@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "semhound"
-version = "1.0.1"
+version = "1.1.0"
 description = "Scan every repository across your GitHub organisations using Semgrep rules, with optional AI triage"
 readme = "README.md"
 license = { text = "MIT" }

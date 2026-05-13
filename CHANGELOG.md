@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## [1.1.0](https://github.com/salecharohit/semhound/compare/v1.0.1...v1.1.0) (2026-05-13)
+
+
+### Features
+
+* use combined blob:none+5m filter to skip large files during clone ([1218475](https://github.com/salecharohit/semhound/commit/1218475734898dab51c057c2cab5faa4085a375d))
+* use combined blob:none+5m filter to skip large files during clone ([3835164](https://github.com/salecharohit/semhound/commit/3835164cb6dc20e4f99ec50858995010d2a2b7f3))
+
 ## [1.0.1](https://github.com/salecharohit/semhound/compare/v1.0.0...v1.0.1) (2026-05-12)
 
 
