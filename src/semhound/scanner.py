@@ -239,8 +239,15 @@ def download_rules(urls: list[str]) -> str:
     return tmpdir
 
 
-def _run_cmd(args: list, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-    return subprocess.run(args, capture_output=True, text=True, cwd=cwd)
+def _run_cmd(
+    args: list,
+    cwd: Optional[str] = None,
+    timeout: Optional[int] = None,
+) -> subprocess.CompletedProcess:
+    try:
+        return subprocess.run(args, capture_output=True, text=True, cwd=cwd, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return subprocess.CompletedProcess(args, returncode=-1, stdout="", stderr="timed out")
 
 
 def _analyze_with_retry(
@@ -343,10 +350,12 @@ def _scan_repo(
             "--filter=blob:limit=1m",
             ssh_url,
             tempdir,
-        ])
+        ], timeout=300)
         if clone.returncode != 0:
             err = clone.stderr.strip()
-            if "Permission denied (publickey)" in err:
+            if clone.returncode == -1:
+                tqdm.write(f"  [skip]    {name} — clone timed out after 5 minutes")
+            elif "Permission denied (publickey)" in err:
                 tqdm.write(
                     f"  [skip]    {name} — SSH key rejected by GitHub. "
                     "Ensure your key has read access to this repository."
@@ -367,9 +376,11 @@ def _scan_repo(
         for src in rules_sources:
             semgrep_cmd += ["--config", src]
         semgrep_cmd += ["--json", "--quiet", tempdir]
-        semgrep = _run_cmd(semgrep_cmd)
+        semgrep = _run_cmd(semgrep_cmd, timeout=1200)
 
-        if semgrep.returncode not in (0, 1):
+        if semgrep.returncode == -1:
+            tqdm.write(f"  [warn]    {name} — semgrep timed out after 20 minutes")
+        elif semgrep.returncode not in (0, 1):
             tqdm.write(f"  [warn]    {name} — semgrep exited {semgrep.returncode}")
 
         try:
@@ -447,19 +458,32 @@ def run_scan(
         ])
 
         progress = tqdm(total=len(repos), desc=f"Scanning {org}", unit="repo")
-        with ThreadPoolExecutor(max_workers=threads) as pool:
-            futures = {
-                pool.submit(
-                    _scan_repo, repo, org, rules_sources, ai_client,
-                    writer, csv_lock, sarif_results, sarif_lock, progress,
-                ): repo["name"]
-                for repo in repos
-            }
+        pool = ThreadPoolExecutor(max_workers=threads)
+        futures = {
+            pool.submit(
+                _scan_repo, repo, org, rules_sources, ai_client,
+                writer, csv_lock, sarif_results, sarif_lock, progress,
+            ): repo["name"]
+            for repo in repos
+        }
+        interrupted = False
+        try:
             for future in as_completed(futures):
                 exc = future.exception()
                 if exc:
                     tqdm.write(f"  [error]   {futures[future]} — {exc}")
-        progress.close()
+        except KeyboardInterrupt:
+            interrupted = True
+            tqdm.write("\n[interrupted] Cancelling remaining tasks...")
+            for f in futures:
+                f.cancel()
+        finally:
+            pool.shutdown(wait=not interrupted, cancel_futures=interrupted)
+            progress.close()
+
+    if interrupted:
+        print(f"\nScan interrupted. Partial results written to: {output_file}")
+        return
 
     print(f"\nResults written to:       {output_file}")
 
