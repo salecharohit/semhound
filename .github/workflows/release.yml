@@ -1,41 +1,60 @@
-name: Release to PyPI
+name: Release
 
 on:
   push:
-    tags:
-      - "v*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to release (e.g. v1.1.0)'
-        required: true
-        default: 'v1.1.0'
+    branches:
+      - main
 
 jobs:
   release:
-    name: Build and publish
+    name: Version bump and publish
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/semhound
     permissions:
-      id-token: write   # required for PyPI trusted publishing
-      contents: read    # required for actions/checkout
+      id-token: write   # PyPI trusted publishing (OIDC)
+      contents: write   # push version bump commit and tag
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history required for version calculation
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+
+      - name: Install tools
+        run: pip install python-semantic-release build
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Determine next version from conventional commits.
+      # Exit 0 = new release created; exit 2 = no releasable commits (docs/chore etc.)
+      - name: Bump version and tag
+        id: semrel
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: |
+          if semantic-release version --push; then
+            echo "released=true" >> $GITHUB_OUTPUT
+          else
+            echo "released=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Syntax check
+        if: steps.semrel.outputs.released == 'true'
         run: python -m compileall src/semhound -q
 
-      - name: Build
-        run: |
-          pip install build
-          python -m build
+      - name: Build wheel and sdist
+        if: steps.semrel.outputs.released == 'true'
+        run: python -m build
 
       - name: Publish to PyPI
+        if: steps.semrel.outputs.released == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1

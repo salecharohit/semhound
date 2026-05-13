@@ -46,3 +46,10 @@ semhound = "semhound.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.semantic_release]
+version_toml                = ["pyproject.toml:project.version"]
+branch                      = "main"
+changelog_file              = "CHANGELOG.md"
+tag_format                  = "v{version}"
+commit_message              = "chore(release): v{version} [skip ci]"
