@@ -26,26 +26,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install tools
-        run: pip install python-semantic-release build
-
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      # Determine next version from conventional commits.
-      # Exit 0 = new release created; exit 2 = no releasable commits (docs/chore etc.)
-      - name: Bump version and tag
+      - name: Python Semantic Release
         id: semrel
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-        run: |
-          if semantic-release version --push; then
-            echo "released=true" >> $GITHUB_OUTPUT
-          else
-            echo "released=false" >> $GITHUB_OUTPUT
-          fi
+        uses: python-semantic-release/python-semantic-release@v9.8.1
+        with:
+          github_token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+
+      - name: Install build tools
+        if: steps.semrel.outputs.released == 'true'
+        run: pip install build
 
       - name: Syntax check
         if: steps.semrel.outputs.released == 'true'

@@ -43,7 +43,7 @@ git push origin feat/my-feature
 
 ## Commit Message Format
 
-semhound uses **[Conventional Commits](https://www.conventionalcommits.org/)** — a strict commit message format that drives automated versioning and changelog generation via [release-please](https://github.com/googleapis/release-please).
+semhound uses **[Conventional Commits](https://www.conventionalcommits.org/)** — a strict commit message format that drives automated versioning and changelog generation via [python-semantic-release](https://python-semantic-release.readthedocs.io/).
 
 ### Structure
 
@@ -61,9 +61,9 @@ semhound uses **[Conventional Commits](https://www.conventionalcommits.org/)** �
 |---|---|---|---|
 | `feat` | New feature for the end user | **Minor** `1.0.0 → 1.1.0` | ✅ Yes |
 | `fix` | Bug fix for the end user | **Patch** `1.0.0 → 1.0.1` | ✅ Yes |
+| `perf` | Performance improvement | **Patch** `1.0.0 → 1.0.1` | ✅ Yes |
 | `docs` | Documentation only changes | None | ❌ No |
 | `refactor` | Code change with no behaviour change | None | ❌ No |
-| `perf` | Performance improvement | None | ❌ No |
 | `test` | Adding or fixing tests | None | ❌ No |
 | `chore` | Build process, dependency updates, tooling | None | ❌ No |
 | `ci` | CI/CD configuration changes | None | ❌ No |
@@ -120,26 +120,24 @@ git commit -m "feat!: replace --ai-config file with --ai-provider flags"
 Your PR merged into main
         │
         ▼
-release-please reads new commits on main
+semantic-release workflow triggers
         │
-        ├── Only docs:/chore:/refactor: ?
+        ├── Only docs:/chore:/ci:/refactor:/test: ?
         │         → No action taken
         │
-        └── feat: or fix: present?
-                  → Opens a "Release PR" automatically
-                        │
-                        ▼
-            @salecharohit merges the Release PR
-                        │
-                        ▼
-            Git tag vX.Y.Z created automatically
-                        │
-                        ▼
+        └── feat: / fix: / perf: present?
+                  │
+                  ▼
+            Version bumped in pyproject.toml
+            CHANGELOG.md updated
+            Git tag vX.Y.Z created
+                  │
+                  ▼
             Package built and published to PyPI ✅
-            GitHub Release created with changelog ✅
+            GitHub Release created automatically ✅
 ```
 
-You do **not** need to manually tag, build, or publish anything.
+The entire process is fully automated. As soon as a feature or fix PR is merged, the release goes out without any additional manual approvals or Release PRs.
 
 ---
 

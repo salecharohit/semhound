@@ -53,3 +53,11 @@ branch                      = "main"
 changelog_file              = "CHANGELOG.md"
 tag_format                  = "v{version}"
 commit_message              = "chore(release): v{version} [skip ci]"
+
+[tool.semantic_release.commit_parser_options]
+# Only these two types bump the version and trigger a PyPI release:
+#   feat  → minor bump  (1.0.0 → 1.1.0)
+#   fix   → patch bump  (1.0.0 → 1.0.1)
+# Everything else (ci, chore, docs, refactor, test, style, build) is a no-op.
+minor_tags = ["feat"]
+patch_tags  = ["fix", "perf"]
