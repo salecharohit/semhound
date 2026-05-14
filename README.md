@@ -167,6 +167,8 @@ The `system_prompt` field is optional but strongly recommended — tailoring it 
 
 No API key needed; credentials come from `~/.aws/credentials`, an IAM role, SSO, etc. Find model IDs in the AWS Console under **Bedrock → Model access**.
 
+> **Quick-start:** [glm-pentagi-via-bedrock](https://github.com/salecharohit/glm-pentagi-via-bedrock) is a Terraform one-liner that provisions a dedicated IAM user + policy and prints the `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` ready to drop into `~/.aws/credentials`.
+
 ```yaml
 provider: bedrock
 aws_profile: default      # omit to use the default credential chain
