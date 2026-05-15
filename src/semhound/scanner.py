@@ -372,7 +372,7 @@ def _scan_repo(
         commit_id = rev.stdout.strip() if rev.returncode == 0 else "HEAD"
 
         tqdm.write(f"  [scan]    {name}")
-        semgrep_cmd = ["semgrep", "--jobs", "1"]
+        semgrep_cmd = ["semgrep", "--jobs", "1", "--metrics", "off"]
         for src in rules_sources:
             semgrep_cmd += ["--config", src]
         semgrep_cmd += ["--json", "--quiet", tempdir]
