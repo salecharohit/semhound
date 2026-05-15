@@ -40,9 +40,6 @@ jobs:
         with:
           github_token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
-      - name: Debug release output
-        run: echo "released: ${{ steps.semrel.outputs.released }}"
-
       - name: Install build tools
         if: steps.semrel.outputs.released == 'true'
         run: pip install build
