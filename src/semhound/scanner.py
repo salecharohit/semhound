@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -372,7 +373,8 @@ def _scan_repo(
         commit_id = rev.stdout.strip() if rev.returncode == 0 else "HEAD"
 
         tqdm.write(f"  [scan]    {name}")
-        semgrep_cmd = ["semgrep", "--jobs", "1", "--metrics", "off"]
+        jobs = min(os.cpu_count() or 4, 8)  # Use up to 8 cores, system agnostic
+        semgrep_cmd = ["semgrep", "--jobs", str(jobs), "--metrics", "off"]
         for src in rules_sources:
             semgrep_cmd += ["--config", src]
         semgrep_cmd += ["--json", "--quiet", tempdir]
@@ -391,6 +393,8 @@ def _scan_repo(
 
         sarif_batch: list[dict] = []
 
+        # Collect all findings first
+        findings_data = []
         for finding in raw_findings:
             rel_path = Path(finding["path"]).relative_to(tempdir)
             line = finding["start"]["line"]
@@ -399,26 +403,54 @@ def _scan_repo(
             snippet = finding.get("extra", {}).get("lines", "").strip()
             permalink = f"https://github.com/{org}/{name}/blob/{commit_id}/{rel_path}#L{line}"
 
+            findings_data.append({
+                "rule_id": rule_id,
+                "message": message,
+                "snippet": snippet,
+                "permalink": permalink,
+                "line": line,
+            })
+
+        # Parallelize AI analysis if enabled
+        ai_results = []
+        if ai_client is not None and findings_data:
+            tqdm.write(f"  [analyze] {name} — analyzing {len(findings_data)} finding(s)")
+            with ThreadPoolExecutor(max_workers=2) as ai_pool:  # Limit to 2 to avoid rate limits
+                futures = {
+                    ai_pool.submit(_analyze_with_retry, ai_client, fd["snippet"], fd["message"], name, fd["rule_id"]): fd
+                    for fd in findings_data
+                }
+                for future in as_completed(futures):
+                    fd = futures[future]
+                    try:
+                        confidence, true_positive = future.result()
+                        ai_results.append((fd, confidence, true_positive))
+                        tqdm.write(
+                            f"  [ai]      {name} — {fd['rule_id']} | "
+                            f"confidence={confidence} true_positive={true_positive}"
+                        )
+                    except Exception as exc:
+                        ai_results.append((fd, "ERROR", str(exc)[:80]))
+
+        # Write results
+        for i, fd in enumerate(findings_data):
             confidence, true_positive = "", ""
-            if ai_client is not None:
-                tqdm.write(f"  [analyze] {name} — {rule_id}")
-                confidence, true_positive = _analyze_with_retry(
-                    ai_client, snippet, message, name, rule_id
-                )
-                tqdm.write(
-                    f"  [ai]      {name} — {rule_id} | "
-                    f"confidence={confidence} true_positive={true_positive}"
-                )
+            if ai_client is not None and ai_results:
+                # Find the matching result
+                for res_fd, conf, tp in ai_results:
+                    if res_fd is fd:
+                        confidence, true_positive = conf, tp
+                        break
 
             with csv_lock:
-                csv_writer.writerow([name, rule_id, message, permalink, confidence, true_positive])
+                csv_writer.writerow([name, fd["rule_id"], fd["message"], fd["permalink"], confidence, true_positive])
 
             sarif_batch.append({
                 "repo": name,
-                "rule_id": rule_id,
-                "message": message,
-                "permalink": permalink,
-                "line": line,
+                "rule_id": fd["rule_id"],
+                "message": fd["message"],
+                "permalink": fd["permalink"],
+                "line": fd["line"],
                 "confidence": confidence,
                 "true_positive": true_positive,
             })
