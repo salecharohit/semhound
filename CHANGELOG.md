@@ -2,7 +2,59 @@
 
 
 
+## v1.1.2 (2026-05-15)
+
+### Chore
+
+* chore: trigger release ([`129a05f`](https://github.com/salecharohit/semhound/commit/129a05faf979b35c96ac9208e8fd2c801e953675))
+
+### Ci
+
+* ci: add manual workflow dispatch with version input ([`eb5562b`](https://github.com/salecharohit/semhound/commit/eb5562ba5149b7fadfeb2a48d34c1872aa6592cf))
+
+### Fix
+
+* fix: disable semgrep metrics and optimize scanning performance
+
+- Disable semgrep telemetry with --metrics off flag
+- Dynamic CPU-aware parallelization for semgrep (4-8 cores)
+- Parallel AI analysis with rate-limit protection (max 2 workers)
+- Improves scan speed on multi-core systems ([`3913cf1`](https://github.com/salecharohit/semhound/commit/3913cf13a543d5a22982574760186007d247b471))
+
+* fix(scanner): disable semgrep metrics during scan ([`0c37028`](https://github.com/salecharohit/semhound/commit/0c37028a5c37a980cbeea6981af977059acc4a7d))
+
+* fix(scanner): add subprocess timeouts to prevent hung clone and semgrep processes ([`65f2411`](https://github.com/salecharohit/semhound/commit/65f2411b0b329a14d11b5fa92a74aa060d0034ef))
+
+### Unknown
+
+* Merge pull request #8 from salecharohit/fix/semgrep-metrics-and-perf
+
+Fix/semgrep metrics and perf ([`87c2b61`](https://github.com/salecharohit/semhound/commit/87c2b617e1bc497fb0f4cba07ce57cdc63b09fa4))
+
+* - fixing another issue ([`4e70d60`](https://github.com/salecharohit/semhound/commit/4e70d60f63b4315b55f188b0bc3a8c14c27f43e3))
+
+* fixing issue ([`02c6cb2`](https://github.com/salecharohit/semhound/commit/02c6cb27b26716f56f06ca1211654d5ac6b5a0fc))
+
+* Merge pull request #7 from salecharohit/fix/semgrep-metrics-and-perf
+
+fix: disable semgrep metrics and optimize scanning performance ([`94667fd`](https://github.com/salecharohit/semhound/commit/94667fd312b9b16876b96851968c59af9234a8c5))
+
+* Merge pull request #6 from salecharohit/fix/disable-semgrep-metrics
+
+fix(scanner): disable semgrep metrics during scan ([`393ec39`](https://github.com/salecharohit/semhound/commit/393ec392727ba2dcea70c47295bca9d100824b95))
+
+* doc: add glm-pentagi-via-bedrock quickstart link to Bedrock section [skip ci] ([`0b96b57`](https://github.com/salecharohit/semhound/commit/0b96b57d73ad941c4fe8a48f960c014af6a727fd))
+
+* Merge pull request #5 from salecharohit/fix/scanner-timeout-and-interrupt
+
+fix(scanner): add subprocess timeouts to prevent hung clone and semgr… ([`aafef91`](https://github.com/salecharohit/semhound/commit/aafef914fa2987a0dcf20026cb7ade25995bf6cb))
+
+
 ## v1.1.1 (2026-05-13)
+
+### Chore
+
+* chore(release): v1.1.1 [skip ci] ([`3f61981`](https://github.com/salecharohit/semhound/commit/3f61981bb0844b27fd4e1aa19d32e420a97d37ca))
 
 ### Ci
 
