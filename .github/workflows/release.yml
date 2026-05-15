@@ -21,6 +21,8 @@ jobs:
     permissions:
       id-token: write   # PyPI trusted publishing (OIDC)
       contents: write   # push version bump commit and tag
+    env:
+      SEMANTIC_RELEASE_VERSION: ${{ github.event.inputs.version }}
 
     steps:
       - uses: actions/checkout@v4
@@ -37,10 +39,6 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v9.8.1
         with:
           github_token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-          version: ${{ github.event.inputs.version }}
-
-      - name: Debug release output
-        run: echo "released: ${{ steps.semrel.outputs.released }}"
 
       - name: Install build tools
         if: steps.semrel.outputs.released == 'true'
