@@ -2,9 +2,18 @@
 
 
 
+## v1.1.3 (2026-05-15)
+
+### Fix
+
+* fix: bump version to 1.1.3 to resolve pypi collision ([`0a20e22`](https://github.com/salecharohit/semhound/commit/0a20e22374b580db7032f00ce5f45d8e1eae91ba))
+
+
 ## v1.1.2 (2026-05-15)
 
 ### Chore
+
+* chore(release): v1.1.2 [skip ci] ([`5740769`](https://github.com/salecharohit/semhound/commit/574076936ae92e89adaf343a94349a772506065c))
 
 * chore: trigger release ([`129a05f`](https://github.com/salecharohit/semhound/commit/129a05faf979b35c96ac9208e8fd2c801e953675))
 
